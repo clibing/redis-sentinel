@@ -1,0 +1,85 @@
+# not support macos docker, please linux is ok
+version: '3.6'
+
+services:
+  master:
+    image: redis
+    container_name: redis-master
+    ports:
+      - 6360:6360
+    volumes:
+      - ./redis6360.conf:/usr/local/etc/redis/redis.conf
+      - ./data6360:/usr/local/etc/redis/data6360
+    command: redis-server /usr/local/etc/redis/redis.conf 
+    networks:
+      extnetwork:
+        ipv4_address: 172.19.0.2
+
+  slave1:
+    image: redis
+    container_name: redis-slave-1
+    ports:
+      - 6361:6361
+    volumes:
+      - ./redis6361.conf:/usr/local/etc/redis/redis.conf
+      - ./data6361:/usr/local/etc/redis/data6361
+    command: redis-server /usr/local/etc/redis/redis.conf --slaveof 172.19.0.2 6360
+    networks:
+      extnetwork:
+        ipv4_address: 172.19.0.3
+
+  slave2:
+    image: redis
+    container_name: redis-slave-2
+    ports:
+      - 6362:6362
+    volumes:
+      - ./redis6362.conf:/usr/local/etc/redis/redis.conf
+      - ./data6362:/usr/local/etc/redis/data6362
+    command: redis-server /usr/local/etc/redis/redis.conf --slaveof 172.19.0.2 6360
+    networks:
+      extnetwork:
+        ipv4_address: 172.19.0.4
+
+  sentinel1:
+    image: redis
+    container_name: redis-sentinel-1
+    ports:
+      - 26360:26360
+    volumes:
+      - ./sentinel26360.conf:/usr/local/etc/redis/sentinel.conf
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    networks:
+      extnetwork:
+        ipv4_address: 172.19.0.5
+
+  sentinel2:
+    image: redis
+    container_name: redis-sentinel-2
+    ports:
+      - 26361:26361
+    volumes:
+      - ./sentinel26361.conf:/usr/local/etc/redis/sentinel.conf
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    networks:
+      extnetwork:
+        ipv4_address: 172.19.0.6
+
+  sentinel3:
+    image: redis
+    container_name: redis-sentinel-3
+    ports:
+      - 26362:26362
+    volumes:
+      - ./sentinel26362.conf:/usr/local/etc/redis/sentinel.conf
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    networks:
+      extnetwork:
+        ipv4_address: 172.19.0.7
+
+networks:
+   extnetwork:
+      ipam:
+         config:
+         - subnet: 172.19.0.0/16
+           gateway: 172.19.0.1
